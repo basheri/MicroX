@@ -19,6 +19,7 @@ type StorageLike = {
       body: ArrayBuffer | Uint8Array | Blob,
       opts?: { contentType?: string; upsert?: boolean },
     ) => Promise<{ data: unknown; error: { message: string } | null }>;
+    download: (path: string) => Promise<{ data: Blob | null; error: { message: string } | null }>;
   };
 };
 
@@ -40,6 +41,17 @@ export async function createSignedUrl(
     throw new Error(`createSignedUrl failed for ${path}: ${error?.message ?? "no data"}`);
   }
   return data.signedUrl;
+}
+
+// Download a file's bytes from the private bucket (server-side; e.g. for extraction).
+export async function downloadProgramFile(
+  path: string,
+  client?: { storage: StorageLike },
+): Promise<Uint8Array> {
+  const { data, error } = await storage(client).from(PROGRAM_FILES_BUCKET).download(path);
+  if (error || !data)
+    throw new Error(`downloadProgramFile failed for ${path}: ${error?.message ?? "no data"}`);
+  return new Uint8Array(await data.arrayBuffer());
 }
 
 // Upload a file into the private bucket.

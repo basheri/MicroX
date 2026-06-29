@@ -14,7 +14,12 @@ function fakeClient(behaviour: {
 }) {
   const createSignedUrlSpy = vi.fn(async () => behaviour.signed ?? { data: null, error: null });
   const uploadSpy = vi.fn(async () => behaviour.upload ?? { data: {}, error: null });
-  const from = vi.fn(() => ({ createSignedUrl: createSignedUrlSpy, upload: uploadSpy }));
+  const downloadSpy = vi.fn(async () => ({ data: null, error: null }));
+  const from = vi.fn(() => ({
+    createSignedUrl: createSignedUrlSpy,
+    upload: uploadSpy,
+    download: downloadSpy,
+  }));
   return { client: { storage: { from } }, from, createSignedUrlSpy, uploadSpy };
 }
 

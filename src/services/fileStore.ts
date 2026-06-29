@@ -2,11 +2,12 @@
 // it can be tested without a live bucket. Production uses SupabaseFileStore (private
 // bucket + signed URLs, SEC-007); tests use InMemoryFileStore.
 
-import { uploadProgramFile, createSignedUrl } from "@/data/storage";
+import { uploadProgramFile, createSignedUrl, downloadProgramFile } from "@/data/storage";
 
 export interface FileStore {
   put(path: string, bytes: Uint8Array, contentType: string): Promise<void>;
   signedUrl(path: string, ttlSeconds?: number): Promise<string>;
+  download(path: string): Promise<Uint8Array>;
 }
 
 export class SupabaseFileStore implements FileStore {
@@ -15,6 +16,9 @@ export class SupabaseFileStore implements FileStore {
   }
   async signedUrl(path: string, ttlSeconds?: number): Promise<string> {
     return createSignedUrl(path, ttlSeconds);
+  }
+  async download(path: string): Promise<Uint8Array> {
+    return downloadProgramFile(path);
   }
 }
 
@@ -28,6 +32,11 @@ export class InMemoryFileStore implements FileStore {
   async signedUrl(path: string): Promise<string> {
     if (!this.files.has(path)) throw new Error(`InMemoryFileStore: no file at ${path}`);
     return `memory://${path}`;
+  }
+  async download(path: string): Promise<Uint8Array> {
+    const bytes = this.files.get(path)?.bytes;
+    if (!bytes) throw new Error(`InMemoryFileStore: no file at ${path}`);
+    return bytes;
   }
   get(path: string): Uint8Array | undefined {
     return this.files.get(path)?.bytes;
