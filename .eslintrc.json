@@ -1,0 +1,20 @@
+{
+  "extends": ["next/core-web-vitals", "prettier"],
+  "rules": {
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/[\\u0660-\\u0669\\u06F0-\\u06F9]/]",
+        "message": "Use Western numerals (0-9) in the UI, not Arabic-Indic digits (rule 50-arabic-rtl-ui)."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
+    }
+  ]
+}
