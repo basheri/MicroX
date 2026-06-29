@@ -7,8 +7,8 @@ import { describe, it } from "vitest";
 // EP-16) and consolidated in EP-22. Marked `.todo` so they show as pending — not as
 // passing coverage — and never invent thresholds beyond rule 10-business-rules.md.
 describe("CI guardrails (implemented per-epic; consolidated in EP-22)", () => {
-  it.todo("TC-01 BR-001: program with <2 or >6 courses is blocked");
-  it.todo("TC-02 BR-002: total credit hours <3 or >23 is blocked");
+  // TC-01 (BR-001) and TC-02 (BR-002) are implemented — see
+  // src/domain/businessRules.test.ts and src/services/ep03.it.test.ts.
   it.todo("TC-03 BR-003: course credit hours <1 or >10 is blocked");
   it.todo("TC-04 BR-005: weekly load >15 actual hours is blocked");
   it.todo("TC-05 BR-006: course hours != credits*15 is blocked + recomputed");

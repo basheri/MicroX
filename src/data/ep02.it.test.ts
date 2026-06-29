@@ -5,9 +5,8 @@
 // Proves the DoD: migrations run clean; RLS on; CRUD on programs with audit + soft delete.
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import pg from "pg";
-// Migration runner is shared with the CLI/CI (scripts/db/migrate.mjs).
-import { applyAll } from "../../scripts/db/migrate.mjs";
+import type pg from "pg";
+import { createIsolatedDb, type IsolatedDb } from "@/test/itDb";
 import { setPool, getPool } from "@/data/pool";
 import {
   createProgram,
@@ -21,22 +20,19 @@ const url = process.env.TEST_DATABASE_URL;
 const suite = url ? describe : describe.skip;
 
 suite("EP-02 — database & storage (integration)", () => {
+  let db: IsolatedDb;
   let admin: pg.Client;
-  let pool: pg.Pool;
 
   beforeAll(async () => {
-    process.env.DATABASE_URL = url;
-    admin = new pg.Client({ connectionString: url });
-    await admin.connect();
-    // Fresh schema, then apply every migration in order — this IS the "migrations run clean" check.
-    await applyAll(admin, { reset: true });
-    pool = new pg.Pool({ connectionString: url });
-    setPool(pool);
+    // Own throwaway database; applying every migration into it IS the "migrations run clean" check.
+    db = await createIsolatedDb("ep02");
+    admin = db.admin;
+    process.env.DATABASE_URL = db.url;
+    setPool(db.pool);
   });
 
   afterAll(async () => {
-    await pool?.end();
-    await admin?.end();
+    await db?.teardown();
   });
 
   it("applies the full schema: 52 tables", async () => {
