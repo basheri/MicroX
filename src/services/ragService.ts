@@ -19,9 +19,9 @@ export { resolveClaims } from "@/domain/rag/conflict";
 export type { Claim, Conflict, ResolutionResult } from "@/domain/rag/conflict";
 
 // Build grounded context for a program from its gate-cleared extracted content.
-// NOTE: the schema does not link uploaded_files -> program_sources.source_type, so the
-// per-file trust class is supplied by the caller (sourceTypeByFile); unspecified files
-// default to 'from_university'. This mapping is data-driven, not an academic rule.
+// A file's trust class comes from its linked program_sources.source_type (0005);
+// `sourceTypeByFile` can override it, and unlinked files fall back to 'from_university'.
+// The trust ranking itself is data-driven operational config, not an academic rule.
 export async function assembleProgramContext(
   programId: string,
   opts: { maxChars?: number; sourceTypeByFile?: Record<string, string> } = {},
@@ -33,7 +33,7 @@ export async function assembleProgramContext(
     const usable = await getUsableExtraction(f.file_id); // excludes low-confidence/unreviewed
     const text = usable.map((u) => u.content).join("\n");
     if (!text.trim()) continue;
-    const sourceType = opts.sourceTypeByFile?.[f.file_id] ?? "from_university";
+    const sourceType = opts.sourceTypeByFile?.[f.file_id] ?? f.source_type ?? "from_university";
     const built = chunksFromSource({ text, sourceType, sourceId: f.file_id, startOrder: order });
     chunks.push(...built);
     order += built.length;

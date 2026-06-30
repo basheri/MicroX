@@ -82,6 +82,14 @@ export async function uploadSource(
         new_value: { originalName, mimeType, sizeBytes: bytes.byteLength, storagePath },
       },
       async () => {
+        // Create the source row first, then link the file to it (0005) so the file's
+        // trust class is explicit.
+        sourceId = await insertProgramSource(client, {
+          programId: input.programId,
+          sourceType: input.sourceType,
+          notes: input.notes ?? null,
+          actor,
+        });
         fileId = await insertUploadedFile(client, {
           programId: input.programId,
           storagePath,
@@ -89,12 +97,7 @@ export async function uploadSource(
           mimeType,
           sizeBytes: bytes.byteLength,
           scanStatus: "clean",
-          actor,
-        });
-        sourceId = await insertProgramSource(client, {
-          programId: input.programId,
-          sourceType: input.sourceType,
-          notes: input.notes ?? null,
+          sourceId,
           actor,
         });
       },

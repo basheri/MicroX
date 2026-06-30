@@ -28,13 +28,14 @@ export async function insertUploadedFile(
     mimeType: string;
     sizeBytes: number;
     scanStatus: "pending" | "clean" | "infected";
+    sourceId?: string | null; // link to program_sources (0005) -> explicit trust class
     actor: string;
   },
 ): Promise<string> {
   const rows = await client.query<{ id: string }>(
     `insert into uploaded_files
-       (program_id, storage_path, original_name, mime_type, size_bytes, scan_status, created_by_actor)
-     values ($1, $2, $3, $4, $5, $6, $7) returning id`,
+       (program_id, storage_path, original_name, mime_type, size_bytes, scan_status, source_id, created_by_actor)
+     values ($1, $2, $3, $4, $5, $6, $7, $8) returning id`,
     [
       input.programId,
       input.storagePath,
@@ -42,6 +43,7 @@ export async function insertUploadedFile(
       input.mimeType,
       input.sizeBytes,
       input.scanStatus,
+      input.sourceId ?? null,
       input.actor,
     ],
   );
@@ -83,14 +85,17 @@ export interface SourceListItem {
   size_bytes: number;
   scan_status: string;
   storage_path: string;
+  source_type: string | null; // from the linked program_sources row (0005)
 }
 
 export async function listProgramFiles(programId: string): Promise<SourceListItem[]> {
   const rows = await getPool().query<SourceListItem>(
-    `select id as file_id, original_name, mime_type, size_bytes, scan_status, storage_path
-       from uploaded_files
-      where program_id = $1 and is_deleted = false
-      order by created_at desc`,
+    `select f.id as file_id, f.original_name, f.mime_type, f.size_bytes, f.scan_status,
+            f.storage_path, ps.source_type
+       from uploaded_files f
+       left join program_sources ps on ps.id = f.source_id
+      where f.program_id = $1 and f.is_deleted = false
+      order by f.created_at desc`,
     [programId],
   );
   return rows.rows;
