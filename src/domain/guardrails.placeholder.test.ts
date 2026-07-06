@@ -7,10 +7,8 @@ import { describe, it } from "vitest";
 // EP-16) and consolidated in EP-22. Marked `.todo` so they show as pending — not as
 // passing coverage — and never invent thresholds beyond rule 10-business-rules.md.
 describe("CI guardrails (implemented per-epic; consolidated in EP-22)", () => {
-  // TC-01 (BR-001), TC-02 (BR-002), TC-03 (BR-003) are implemented — see
-  // businessRules.test.ts, courseRules.test.ts, ep03.it.test.ts, ep10.it.test.ts.
-  it.todo("TC-04 BR-005: weekly load >15 actual hours is blocked");
-  it.todo("TC-05 BR-006: course hours != credits*15 is blocked + recomputed");
+  // TC-01 (BR-001), TC-02 (BR-002), TC-03 (BR-003), TC-04 (BR-005), TC-05 (BR-006) are
+  // implemented — see businessRules/courseRules/hoursRules tests + ep03/ep10/ep12 integration.
   it.todo("TC-08 BR-013: official template missing required fields blocks export");
   it.todo("TC-11 BR-019: export with a blocking error is prevented");
   it.todo("TC-13 BR-020: editing a published version is blocked");

@@ -67,6 +67,41 @@ export function actualHoursForCredits(creditHours: number): number {
   return creditHours * BR.HOURS_PER_CREDIT;
 }
 
+// BR-005 — max 15 actual learning hours per week of learner load. Above that is blocking.
+export function checkWeeklyLoad(weeklyLoadHours: number): RuleIssue | null {
+  if (weeklyLoadHours > BR.MAX_WEEKLY_ACTUAL_HOURS) {
+    return {
+      ruleCode: "BR-005",
+      severity: "blocking",
+      message: `الحمل الأسبوعي (${weeklyLoadHours} ساعة فعلية) يتجاوز الحد الأقصى ${BR.MAX_WEEKLY_ACTUAL_HOURS} ساعة/أسبوع (القاعدة BR-005).`,
+    };
+  }
+  return null;
+}
+
+// Weekly load = total actual hours spread across the number of weeks.
+export function computeWeeklyLoad(totalActualHours: number, weeks: number): number {
+  if (weeks <= 0) return Infinity;
+  return totalActualHours / weeks;
+}
+
+// BR-006 — a course's hour distribution must sum to credit_hours × 15. The expected total
+// is recomputed here; a mismatch is blocking.
+export function checkCourseHoursSum(
+  creditHours: number,
+  allocatedActualHours: number,
+): RuleIssue | null {
+  const expected = actualHoursForCredits(creditHours);
+  if (allocatedActualHours !== expected) {
+    return {
+      ruleCode: "BR-006",
+      severity: "blocking",
+      message: `توزيع ساعات المقرر (${allocatedActualHours}) لا يساوي الساعات المطلوبة ${expected} = ${creditHours}×${BR.HOURS_PER_CREDIT} (القاعدة BR-006).`,
+    };
+  }
+  return null;
+}
+
 // Aggregate the structural export-gate checks available at the program level.
 // (More contributors — outcomes/hours/questions coverage — are added in their epics.)
 export function checkProgramStructure(input: {
