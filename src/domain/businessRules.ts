@@ -46,6 +46,27 @@ export function checkTotalCreditHours(totalCreditHours: number): RuleIssue | nul
   return null;
 }
 
+// BR-003 — each course must have 1 to 10 credit hours. (Also a DB CHECK.)
+export function checkCourseCreditHours(creditHours: number): RuleIssue | null {
+  if (
+    !Number.isFinite(creditHours) ||
+    creditHours < BR.COURSE_CREDITS_MIN ||
+    creditHours > BR.COURSE_CREDITS_MAX
+  ) {
+    return {
+      ruleCode: "BR-003",
+      severity: "blocking",
+      message: `يجب أن تكون الساعات المعتمدة للمقرر بين ${BR.COURSE_CREDITS_MIN} و ${BR.COURSE_CREDITS_MAX} (القاعدة BR-003). القيمة الحالية: ${creditHours}.`,
+    };
+  }
+  return null;
+}
+
+// BR-004 — fixed conversion: 1 credit hour = 15 actual learning hours.
+export function actualHoursForCredits(creditHours: number): number {
+  return creditHours * BR.HOURS_PER_CREDIT;
+}
+
 // Aggregate the structural export-gate checks available at the program level.
 // (More contributors — outcomes/hours/questions coverage — are added in their epics.)
 export function checkProgramStructure(input: {
