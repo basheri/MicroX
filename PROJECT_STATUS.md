@@ -29,7 +29,7 @@ Baseline verified 2026-07-16 against local Postgres 16: 225 tests passing, 2 tod
 | EP-20 | Dashboard & metrics | Complete and verified | metricsRepo, xlsxWriter | ep20.it, xlsxWriter | — | — |
 | EP-21 | Export package | Complete and verified | exportPackageService (gate-first, index) | ep21.it | — | TC-08 field-gate pending V-01/V-06 |
 | EP-22 | Test consolidation | Complete and verified | tcMatrix.it (TC-01..14) + CI build/format steps | tcMatrix.it | — | TC-08 todo (V-01/V-06) |
-| EP-23 | Deployment & live | Blocked by external credentials | env scaffold | — | — | Supabase/OpenRouter/Vercel |
+| EP-23 | Deployment & live | Code/config complete; live deploy blocked by external credentials | middleware (D-07), accessControl, DEPLOYMENT.md, vercel.json | accessControl.test | clean-DB migrate (73 tbls) | live deploy needs Supabase/OpenRouter/Vercel creds |
 | EP-24 | Operations | Missing | — | — | — | logging/backup drill |
 
 ## Statuses legend

@@ -3,7 +3,16 @@
 // Later epics can back this with `application_settings` in the DB without changing callers.
 
 export type FeatureFlag =
-  "market_analysis" | "program_generator" | "question_bank" | "word_export" | "compliance_engine";
+  | "market_analysis"
+  | "program_generator"
+  | "question_bank"
+  | "word_export"
+  | "compliance_engine"
+  | "quality_engine"
+  | "center_feedback"
+  | "versioning"
+  | "dashboard"
+  | "export_package";
 
 function parseFlags(raw: string | undefined): Set<string> {
   return new Set(

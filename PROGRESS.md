@@ -1,13 +1,13 @@
 ```yaml
 microx_progress:
-  current_epic: EP-22 Test consolidation (complete) → EP-23 next
-  current_vertical_slice: consolidated TC-01..14 matrix + CI hardening (format:check + build steps)
+  current_epic: EP-23 Deployment (code+config+docs complete; live deploy EXTERNAL-BLOCKED) → EP-24 next
+  current_vertical_slice: IP allow-list (D-07) middleware + rollout flags + deploy runbook + security review
   current_branch: claude/microx-setup-spec-review-wabz9w
   latest_commit: (EP-17 commit)
-  completed_epics: EP-01..EP-22
-  verified_epics: EP-01..EP-22 (green tests + build)
+  completed_epics: EP-01..EP-22 (+EP-23 non-blocked scope)
+  verified_epics: EP-01..EP-22 + EP-23 code/config (green tests + build); clean-DB migration verified
   active_tests: vitest (unit + integration on real Postgres)
-  tests_passing: 265
+  tests_passing: 271
   tests_failing: 0
   tests_todo: 1   # TC-08 only (needs V-01/V-06)
   typecheck_status: clean
@@ -20,5 +20,5 @@ microx_progress:
   security_status: no secrets committed; .env.example only
   open_v_points: V-01, V-02, V-03, V-04, V-05, V-06, V-07, V-08
   external_blockers: live Supabase / OpenRouter / Vercel credentials (EP-23)
-  next_action: EP-23 Deployment (EXTERNAL-BLOCKED: needs Supabase/OpenRouter/Vercel creds) — scaffold + docs, then EP-24
+  next_action: EP-24 Operations (logging/health/backup-restore drill on local Postgres)
 ```
