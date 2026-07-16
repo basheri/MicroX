@@ -7,6 +7,7 @@ import { withTransaction } from "@/data/pool";
 import { PgAuditSink } from "@/data/pgAuditSink";
 import { getActiveProgram } from "@/data/programsRepo";
 import { ProgramRuleError } from "@/services/programService";
+import { assertEditable } from "@/services/versioningService";
 import {
   countActiveCourses,
   sumCreditHours,
@@ -50,6 +51,7 @@ export async function addCourse(
 ): Promise<string> {
   if (!actor?.trim()) throw new Error("actor_name is required — no anonymous writes (rule 00).");
   await requireProgram(programId);
+  await assertEditable(programId); // BR-020: no edits to a published (locked) program.
 
   // BR-003: per-course credit-hour bounds.
   const creditIssue = checkCourseCreditHours(input.creditHours);

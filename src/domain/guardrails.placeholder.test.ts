@@ -12,11 +12,12 @@ describe("CI guardrails (implemented per-epic; consolidated in EP-22)", () => {
   // no-HTML->Word is implemented — see src/services/word/noHtmlToWord.guard.test.ts.
   // TC-11 (BR-019) is implemented — the export gate blocks on a blocking failure and
   // requires a saved justification for low quality — see complianceEngine.test.ts + ep16.it.test.ts.
+  // TC-13 (BR-020) is implemented — editing a published version is blocked and opens an
+  // update cycle; restore creates a new version (TC-14) — see ep19.it.test.ts.
   // TC-08 (BR-013) stays flagged: the missing-required-field -> blocking-export rule
   // needs the OFFICIAL required field list (V-01) + mechanism (V-06). The completeness
   // harness exists; only the real required list finalizes it.
   it.todo(
     "TC-08 BR-013: official template missing required fields blocks export (needs V-01/V-06)",
   );
-  it.todo("TC-13 BR-020: editing a published version is blocked");
 });

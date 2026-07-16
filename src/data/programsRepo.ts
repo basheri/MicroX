@@ -169,6 +169,44 @@ export async function getStatusHistory(programId: string): Promise<StatusHistory
   return rows.rows;
 }
 
+// --- Publish state (BR-020) ---
+export async function getPublishState(
+  programId: string,
+): Promise<{ isPublished: boolean; versionNo: number } | null> {
+  const rows = await getPool().query<{ is_published: boolean; current_version_no: number }>(
+    "select is_published, current_version_no from programs where id = $1 and is_deleted = false",
+    [programId],
+  );
+  const r = rows.rows[0];
+  return r ? { isPublished: r.is_published, versionNo: r.current_version_no } : null;
+}
+
+export async function setPublished(
+  client: PoolClient,
+  programId: string,
+  isPublished: boolean,
+  actor: string,
+): Promise<void> {
+  await client.query(
+    `update programs set is_published = $2, updated_by_actor = $3, updated_at = now()
+       where id = $1`,
+    [programId, isPublished, actor],
+  );
+}
+
+export async function bumpVersionNo(
+  client: PoolClient,
+  programId: string,
+  versionNo: number,
+  actor: string,
+): Promise<void> {
+  await client.query(
+    `update programs set current_version_no = $2, updated_by_actor = $3, updated_at = now()
+       where id = $1`,
+    [programId, versionNo, actor],
+  );
+}
+
 // Persist the computed dashboard metrics on the program row.
 export async function updateProgramMetrics(
   programId: string,

@@ -25,7 +25,7 @@ Baseline verified 2026-07-16 against local Postgres 16: 225 tests passing, 2 tod
 | EP-16 | Compliance & gate | Complete and verified | data-driven rules, BR-019 gate | TC-11/TC-12, ep16.it | — | V-05 values pending |
 | EP-17 | Quality engine | Complete and verified | six-axis, advisory, confidence | qualityEngine, ep17.it | — | — |
 | EP-18 | Center feedback | Complete and verified | feedbackService, versioning helper | ep18.it | — | — |
-| EP-19 | Versioning & published lock | Partially implemented | version snapshots exist | — | — | BR-020/TC-13 |
+| EP-19 | Versioning & published lock | Complete and verified | versioningService, publish lock | TC-13/TC-14, ep19.it | — | — |
 | EP-20 | Dashboard & metrics | Partially implemented | metrics columns exist | — | — | dashboards |
 | EP-21 | Export package | Partially implemented | export_packages + gate | — | — | package assembly |
 | EP-22 | Test consolidation | Partially implemented | TCs across epics | — | — | consolidate + map |

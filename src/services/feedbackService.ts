@@ -7,7 +7,7 @@ import { withAudit } from "@/lib/audit";
 import { withTransaction } from "@/data/pool";
 import { PgAuditSink } from "@/data/pgAuditSink";
 import { getActiveProgram } from "@/data/programsRepo";
-import { createVersionInTx } from "@/services/versioningService";
+import { createVersionInTx, assertEditable } from "@/services/versioningService";
 import {
   insertFeedbackFile,
   insertFeedbackItem,
@@ -154,6 +154,7 @@ export async function applyProposal(proposalId: string, actor: string): Promise<
       `لا يمكن تطبيق مقترح حالته «${proposal.decision}» (يجب أن يكون قيد الانتظار).`,
     );
   }
+  await assertEditable(proposal.program_id); // BR-020: no applies to a published program.
   return withTransaction(async (client) => {
     const sink = new PgAuditSink(client);
     let versionNo = 0;
