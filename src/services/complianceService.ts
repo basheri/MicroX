@@ -156,6 +156,33 @@ export interface ExportOutcome {
   justification: string | null;
 }
 
+export interface GateCheck {
+  decision: ExportDecision;
+  justification: string | null;
+  blocking: CheckResult[];
+  lowQuality: CheckResult[];
+}
+
+// The BR-019 export gate as a reusable check: runs a fresh compliance pass and throws
+// on a blocking failure (TC-11) or a low-quality failure without a justification
+// (TC-12). Returns the (possibly null) justification when export is permitted. Used by
+// both attemptExport and the EP-21 package assembler so the gate is enforced once.
+export async function enforceExportGate(
+  programId: string,
+  actor: string,
+  justificationInput?: string,
+): Promise<GateCheck> {
+  if (!actor?.trim()) throw new Error("actor_name is required — no anonymous writes (rule 00).");
+  const run = await runComplianceChecks(programId, actor);
+  if (run.decision === "blocked") throw new ExportBlockedError(run.classified.blocking);
+  const lowQuality = [...run.classified.warning, ...run.classified.suggestion];
+  const justification = justificationInput?.trim() ? justificationInput.trim() : null;
+  if (run.decision === "needs_justification" && !justification) {
+    throw new JustificationRequiredError(lowQuality);
+  }
+  return { decision: run.decision, justification, blocking: run.classified.blocking, lowQuality };
+}
+
 // The BR-019 export gate. Runs a fresh compliance pass, then:
 //   blocked            -> throw ExportBlockedError (TC-11), regardless of justification.
 //   needs_justification-> throw JustificationRequiredError unless a justification is
@@ -167,18 +194,8 @@ export async function attemptExport(
   actor: string,
   opts: { justification?: string } = {},
 ): Promise<ExportOutcome> {
-  if (!actor?.trim()) throw new Error("actor_name is required — no anonymous writes (rule 00).");
-  const run = await runComplianceChecks(programId, actor);
-
-  if (run.decision === "blocked") {
-    throw new ExportBlockedError(run.classified.blocking);
-  }
-
-  const lowQuality = [...run.classified.warning, ...run.classified.suggestion];
-  const justification = opts.justification?.trim() ? opts.justification.trim() : null;
-  if (run.decision === "needs_justification" && !justification) {
-    throw new JustificationRequiredError(lowQuality);
-  }
+  const gate = await enforceExportGate(programId, actor, opts.justification);
+  const { decision, justification, lowQuality } = gate;
 
   return withTransaction(async (client) => {
     const sink = new PgAuditSink(client);
@@ -188,7 +205,7 @@ export async function attemptExport(
         actor_name: actor,
         operation_type: "program.export",
         program_id: programId,
-        new_value: { decision: run.decision, lowQuality: lowQuality.map((f) => f.ruleCode) },
+        new_value: { decision, lowQuality: lowQuality.map((f) => f.ruleCode) },
         // BR-019: the justification is saved to the audit log for low-quality exports.
         override_justification: justification,
       },
@@ -202,7 +219,7 @@ export async function attemptExport(
       },
       sink,
     );
-    return { packageId, decision: run.decision, justification };
+    return { packageId, decision, justification };
   });
 }
 

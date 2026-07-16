@@ -27,7 +27,7 @@ Baseline verified 2026-07-16 against local Postgres 16: 225 tests passing, 2 tod
 | EP-18 | Center feedback | Complete and verified | feedbackService, versioning helper | ep18.it | — | — |
 | EP-19 | Versioning & published lock | Complete and verified | versioningService, publish lock | TC-13/TC-14, ep19.it | — | — |
 | EP-20 | Dashboard & metrics | Complete and verified | metricsRepo, xlsxWriter | ep20.it, xlsxWriter | — | — |
-| EP-21 | Export package | Partially implemented | export_packages + gate | — | — | package assembly |
+| EP-21 | Export package | Complete and verified | exportPackageService (gate-first, index) | ep21.it | — | TC-08 field-gate pending V-01/V-06 |
 | EP-22 | Test consolidation | Partially implemented | TCs across epics | — | — | consolidate + map |
 | EP-23 | Deployment & live | Blocked by external credentials | env scaffold | — | — | Supabase/OpenRouter/Vercel |
 | EP-24 | Operations | Missing | — | — | — | logging/backup drill |
