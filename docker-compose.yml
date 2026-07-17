@@ -1,0 +1,36 @@
+# Local development stack for MicroX.
+# Starts Postgres (the only external dependency for local dev). The Next.js app runs on
+# the host via `npm run dev` — this file just provides the database so you don't have to
+# install/manage Postgres yourself.
+#
+#   docker compose up -d        # start Postgres (creates the microx + microx_test DBs)
+#   npm run db:migrate          # apply the schema (DATABASE_URL points at this container)
+#   npm run dev                 # http://localhost:3000
+#   docker compose down         # stop (add -v to also wipe the data volume)
+#
+# Matches the DATABASE_URL in .env.local:
+#   postgresql://postgres:postgres@localhost:5432/microx
+
+services:
+  db:
+    image: postgres:16
+    container_name: microx-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: microx
+    ports:
+      - "5432:5432"
+    volumes:
+      - microx-pgdata:/var/lib/postgresql/data
+      # Auto-creates the throwaway test database on first boot (for `npm test`).
+      - ./scripts/db/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  microx-pgdata:
