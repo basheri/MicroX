@@ -35,7 +35,7 @@ describe("ProgramsDashboard (SC-03)", () => {
       "fetch",
       vi.fn(async () => ({
         ok: true,
-        json: async () => ({ programs: [program] }),
+        text: async () => JSON.stringify({ programs: [program] }),
       })) as unknown as typeof fetch,
     );
 
@@ -54,7 +54,7 @@ describe("ProgramsDashboard (SC-03)", () => {
   it("sends active filters as query parameters", async () => {
     const fetchMock = vi.fn(async (..._args: unknown[]) => ({
       ok: true,
-      json: async () => ({ programs: [] }),
+      text: async () => JSON.stringify({ programs: [] }),
     }));
     vi.stubGlobal("fetch", fetchMock as unknown as typeof fetch);
 

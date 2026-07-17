@@ -13,15 +13,27 @@ function actorFrom(req: NextRequest): string {
 // GET /api/programs — dashboard list with optional filters (SC-03).
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams;
-  const programs = await listPrograms({
-    sectorId: q.get("sectorId") ?? undefined,
-    fieldId: q.get("fieldId") ?? undefined,
-    developmentPathId: q.get("developmentPathId") ?? undefined,
-    stage: q.get("stage") ?? undefined,
-    approvalState: q.get("approvalState") ?? undefined,
-    search: q.get("search") ?? undefined,
-  });
-  return NextResponse.json({ programs });
+  try {
+    const programs = await listPrograms({
+      sectorId: q.get("sectorId") ?? undefined,
+      fieldId: q.get("fieldId") ?? undefined,
+      developmentPathId: q.get("developmentPathId") ?? undefined,
+      stage: q.get("stage") ?? undefined,
+      approvalState: q.get("approvalState") ?? undefined,
+      search: q.get("search") ?? undefined,
+    });
+    return NextResponse.json({ programs });
+  } catch (err) {
+    // Always return JSON (never an empty body) so the client can show a clear message.
+    // The common cause is an unreachable DB or unapplied migrations (run `npm run db:migrate`).
+    return NextResponse.json(
+      {
+        error: "تعذّر تحميل البرامج — تحقّق من الاتصال بقاعدة البيانات وتطبيق الترحيلات.",
+        detail: (err as Error).message,
+      },
+      { status: 500 },
+    );
+  }
 }
 
 // POST /api/programs — create from name + sector + field only (SC-02, no cloning).

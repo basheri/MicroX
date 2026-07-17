@@ -18,6 +18,7 @@ interface Lookups {
 
 export function ProgramsDashboard({ lookups }: { lookups: Lookups }) {
   const [programs, setPrograms] = useState<Program[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     sectorId: "",
     fieldId: "",
@@ -28,11 +29,24 @@ export function ProgramsDashboard({ lookups }: { lookups: Lookups }) {
   });
 
   const load = useCallback(async () => {
+    setError(null);
     const q = new URLSearchParams();
     Object.entries(filters).forEach(([k, v]) => v && q.set(k, v));
-    const res = await fetch(`/api/programs?${q.toString()}`);
-    const data = await res.json();
-    setPrograms(data.programs ?? []);
+    try {
+      const res = await fetch(`/api/programs?${q.toString()}`);
+      // Read as text first so an empty/HTML error body never throws on .json().
+      const raw = await res.text();
+      const data = raw ? JSON.parse(raw) : {};
+      if (!res.ok) {
+        setError(data.error ?? "تعذّر تحميل البرامج.");
+        setPrograms([]);
+        return;
+      }
+      setPrograms(data.programs ?? []);
+    } catch {
+      setError("تعذّر الاتصال بالخادم. تأكد من تشغيل قاعدة البيانات وتطبيق الترحيلات.");
+      setPrograms([]);
+    }
   }, [filters]);
 
   useEffect(() => {
@@ -51,6 +65,8 @@ export function ProgramsDashboard({ lookups }: { lookups: Lookups }) {
   return (
     <section aria-label="لوحة البرامج">
       <h2>البرامج ({programs.length})</h2>
+
+      {error && <p role="alert">{error}</p>}
 
       <div role="group" aria-label="عوامل التصفية">
         <select aria-label="القطاع" value={filters.sectorId} onChange={set("sectorId")}>
