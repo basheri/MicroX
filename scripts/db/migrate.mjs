@@ -8,9 +8,12 @@
 //   node scripts/db/migrate.mjs --down     # roll back the most recent migration
 //   node scripts/db/migrate.mjs --reset    # drop+recreate public schema, then apply all
 //
-// Reads DATABASE_URL (or the first CLI arg as a connection string).
+// Reads DATABASE_URL (or the first CLI arg as a connection string). If DATABASE_URL is
+// not already in the environment, it is loaded from `.env.local` / `.env` in the project
+// root — so `npm run db:migrate` works with the same file the app uses, no shell export
+// needed. No dependency: a tiny parser handles the KEY=VALUE lines.
 
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import pg from "pg";
@@ -18,6 +21,32 @@ import pg from "pg";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MIGRATIONS_DIR = join(__dirname, "..", "..", "supabase", "migrations");
 const DOWN_DIR = join(MIGRATIONS_DIR, "down");
+const PROJECT_ROOT = join(__dirname, "..", "..");
+
+// Load env from .env.local then .env (values already in process.env win) — mirrors how
+// Next.js loads them, so the migration runner sees the same DATABASE_URL as the app.
+function loadDotEnv() {
+  for (const file of [".env.local", ".env"]) {
+    const path = join(PROJECT_ROOT, file);
+    if (!existsSync(path)) continue;
+    for (const rawLine of readFileSync(path, "utf8").split(/\r?\n/)) {
+      const line = rawLine.trim();
+      if (!line || line.startsWith("#")) continue;
+      const eq = line.indexOf("=");
+      if (eq === -1) continue;
+      const key = line.slice(0, eq).trim();
+      let value = line.slice(eq + 1).trim();
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+      if (key && process.env[key] === undefined) process.env[key] = value;
+    }
+  }
+}
+loadDotEnv();
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(name);
