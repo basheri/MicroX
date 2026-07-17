@@ -135,7 +135,9 @@ export function ProgramsDashboard({ lookups }: { lookups: Lookups }) {
         <tbody>
           {programs.map((p) => (
             <tr key={p.id}>
-              <td>{p.name}</td>
+              <td>
+                <a href={`/programs/${p.id}`}>{p.name}</a>
+              </td>
               <td>{STAGE_LABELS[p.current_stage as Stage] ?? p.current_stage}</td>
               <td>
                 <Bidi>{p.completion_pct}%</Bidi>

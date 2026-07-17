@@ -28,7 +28,7 @@ export async function exportMetricsXlsx(): Promise<Uint8Array> {
   rows.push(["البرامج المنشورة", "—", m.publishedCount]);
   rows.push(["ملاحظات غير محلولة", "—", m.unresolvedFeedback]);
   rows.push(["أخطاء توافق حاجبة", "—", m.blockingChecks]);
-  rows.push(["نشاط التدقيق (٢٤ ساعة)", "—", m.auditLast24h]);
+  rows.push(["نشاط التدقيق (24 ساعة)", "—", m.auditLast24h]);
 
   return buildXlsx("المؤشرات", rows);
 }

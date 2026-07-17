@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { RTL } from "@/lib/rtl";
+import { SiteNav } from "@/ui/SiteNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,7 +13,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang={RTL.lang} dir={RTL.dir}>
-      <body>{children}</body>
+      <body>
+        <SiteNav />
+        {children}
+      </body>
     </html>
   );
 }

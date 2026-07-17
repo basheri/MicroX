@@ -98,7 +98,7 @@ export function MetricsPanel() {
               أخطاء توافق حاجبة: <Bidi>{metrics.blockingChecks}</Bidi>
             </li>
             <li>
-              نشاط التدقيق (٢٤ ساعة): <Bidi>{metrics.auditLast24h}</Bidi>
+              نشاط التدقيق (24 ساعة): <Bidi>{metrics.auditLast24h}</Bidi>
             </li>
           </ul>
         </div>
